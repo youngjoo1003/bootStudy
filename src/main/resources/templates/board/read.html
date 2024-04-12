@@ -47,6 +47,114 @@
     type=${requestDTO.type}, keyword=${requestDTO.keyword})}">
       <button type="button" class="btn btn-info">List</button></a>
 
+    <div>
+      <div class="mt-4">
+        <h5><span class="badge badge-info addReply">Add Reply</span></h5>
+        <h5><span class="badge badge-secondary replyCount"> Reply Count
+        [[${dto.replyCount}]]</span></h5>
+      </div>
+      <div class="list-group replyList">
+
+      </div>
+    </div>
+
+    <!-- 모달창 -->
+    <div class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modal title</h5>
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group"
+                 <input class="form-control" type="text" name="replyText" placeholder="Reply Text...">
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" name="replyer" placeholder="Replyer">
+            <input type="hidden" name="rno">
+          </div>
+        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger replyRemove">Remove</button>
+            <button type="button" class="btn btn-warning replyModify">Modify</button>
+            <button type="button" class="btn btn-primary replySave">Save</button>
+            <button type="button" class="btn btn-outline-secondary replyClose" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <script th:inline="javascript">
+      $(document).ready(function (){
+
+        var bno = [[${dto.bno}]]; // 게시물 번호 가져옴
+
+        var listGroup = $(".replyList"); // 댓글 목록 표시
+
+        $(".replyCount").click(function (){ // 댓글 수 클릭 했을 때
+
+          $.getJSON('/replies/board/'+bno, function (arr){ // 댓글 가져옴
+
+            console.log(arr);
+
+          }) // getJSON 끝
+
+        }) // click 끝
+
+        // 댓글이 추가될 영역
+        var listGroup = $(".replyList");
+
+        // 날짜 처리를 위한 함수
+        function formatTime(str){
+          var date = new Date(str); // 문자열을 날짜 객체로 변환
+
+          return date.getFullYear() + '/' +
+                  (date.getMonth() + 1) + '/' +
+                  date.getDate() + ' ' +
+                  date.getHours() + ':' +
+                  date.getMinutes();
+        }
+
+        // 특정한 게시글의 댓글을 처리하는 함수
+        function loadJSONData(){
+          $.getJSON('/replies/board/'+bno, function (arr){ // 댓글 가져옴
+
+            console.log(arr);
+
+            var str =""; // 댓글 출력을 위한 문자열 변수 초기화
+
+            $('.replyCount').html(" Reply Count " + arr.length); // 댓글 수 업뎃
+
+            $.each(arr, function (idx, reply){
+              console.log(reply);
+              str += '  <div class="card-body" date-rno="'+reply.rno+'"><b>'
+                      +reply.rno +'</b>'; // 댓글 번호
+              str += '  <h5 class="card-title">'+reply.text+'</h5>'; // 댓글 내용
+              str += '  <h6 class="card-subtitle mb-2 text-muted">'+reply.replyer+'</h6>'; // 댓글 작성자
+              str += '  <p class="card-text">'+ formatTime(reply.regDate)+'</p>'; // 댓글 작성일
+              str += '  </div>';
+            })
+
+            listGroup.html(str);
+
+          });
+
+        }
+
+        $(".replyCount").click(function(){
+
+          loadJSONData(); // 댓글 목록 출력
+        })//end click
+
+      });
+
+    </script>
   </th:block>
 
 </th:block>
