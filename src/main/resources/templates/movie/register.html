@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+
+  <th:block th:fragment="content">
+
+    <h1 class="mt-4">Movie Register Page</h1>
+
+    <!-- 영화 등록 폼 -->
+    <form th:action="@{/movie/register}" th:method="post"  >
+      <div class="form-group">
+        <label >Title</label>
+        <input type="text" class="form-control" name="title" placeholder="Enter Title">
+      </div>
+
+      <!-- 이미지 파일 업로드 폼 -->
+      <div class="form-group fileForm">
+        <label >Image Files</label>
+        <div class="custom-file">
+          <input type="file"  class="custom-file-input files" id="fileInput" multiple>
+          <label class="custom-file-label" data-browse="Browse"></label>
+        </div>
+      </div>
+
+      <!-- 업로드 결과 표시 영역 -->
+      <div class="box">
+
+      </div>
+
+      <!-- 업로드 결과 표시 영역 스타일 -->
+      <style>
+        .uploadResult {
+          width: 100%;
+          background-color: gray;
+          margin-top: 10px;
+        }
+
+        .uploadResult ul {
+          display: flex;
+          flex-flow: row;
+          justify-content: center;
+          align-items: center;
+          vertical-align: top;
+          overflow: auto;
+        }
+
+        .uploadResult ul li {
+          list-style: none;
+          padding: 10px;
+          margin-left: 2em;
+        }
+
+        .uploadResult ul li img {
+          width: 100px;
+        }
+      </style>
+
+      <!-- 업로드 결과 표시 영역 -->
+      <div class="uploadResult">
+        <ul>
+
+        </ul>
+      </div>
+
+      <!-- 제출 버튼-->
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- 스크립트 -->
+    <script>
+      $(document).ready(function(e) {
+        var regex = new RegExp("(.*?)\.(exe|sh|zip|alz|tiff)$");
+        var maxSize = 10485760; //10MB
+
+        // 파일 확장자 및 크기 확인
+        function checkExtension(fileName, fileSize){
+
+          if(fileSize >= maxSize){
+            alert("파일 사이즈 초과");
+            return false;
+          }
+
+          if(regex.test(fileName)){
+            alert("해당 종류의 파일은 업로드할 수 없습니다.");
+            return false;
+          }
+          return true;
+        }
+
+        // 파일 선택 변경될 때 처리
+        $(".custom-file-input").on("change", function() {
+
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+
+          var formData = new FormData();
+
+          var inputFile = $(this);
+
+          var files = inputFile[0].files;
+
+          var appended = false;
+
+          for (var i = 0; i < files.length; i++) {
+
+            if(!checkExtension(files[i].name, files[i].size) ){
+              return false;
+            }
+
+            console.log(files[i]);
+            formData.append("uploadFiles", files[i]);
+            appended = true;
+          }
+
+          // 업로드 할 파일 없으면 종료
+          if (!appended) {return;}
+
+          // formData에 저장된 파일 정보 확인
+          for (var value of formData.values()) {
+            console.log(value);
+          }
+
+          //실제 업로드 부분
+          //upload ajax
+          $.ajax({
+            url: '/uploadAjax',
+            processData: false,
+            contentType: false,
+            data: formData,
+            type: 'POST',
+            dataType:'json',
+            success: function(result){
+              console.log(result);
+              showResult(result);
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+              console.log(textStatus);
+            }
+          }); //$.ajax
+        }); //end change event
+
+        // 업로드 결과 표시
+        function showResult(uploadResultArr){
+
+          var uploadUL = $(".uploadResult ul");
+
+          var str ="";
+
+          $(uploadResultArr).each(function(i, obj) {
+
+            str += "<li data-name='" + obj.fileName + "' data-path='"+obj.folderPath+"' data-uuid='"+obj.uuid+"'>";
+            str + " <div>";
+            str += "<button type='button' data-file=\'" + obj.imageURL + "\' "
+            str += "class='btn-warning btn-sm'>X</button><br>";
+            str += "<img src='/display?fileName=" + obj.thumbnailURL + "'>";
+            str += "</div>";
+            str + "</li>";
+          });
+
+          uploadUL.append(str);
+        }
+
+        // 파일 삭제 버튼 클릭
+        $(".uploadResult ").on("click", "li button", function(e){
+
+          console.log("delete file");
+
+          var targetFile = $(this).data("file");
+
+          var targetLi = $(this).closest("li");
+
+          $.ajax({
+            url: '/removeFile',
+            data: {fileName: targetFile},
+            dataType:'text',
+            type: 'POST',
+            success: function(result){
+              alert(result);
+
+              targetLi.remove();
+            }
+          }); //$.ajax
+        });
+
+        // 제출 버튼 클릭
+        $(".btn-primary").on("click", function(e) {
+          e.preventDefault();
+
+          var str = "";
+
+          $(".uploadResult li").each(function(i,obj){
+            var target = $(obj);
+
+            str += "<input type='hidden' name='imageDTOList["+i+"].imgName' value='"+target.data('name') +"'>";
+
+            str += "<input type='hidden' name='imageDTOList["+i+"].path' value='"+target.data('path')+"'>";
+
+            str += "<input type='hidden' name='imageDTOList["+i+"].uuid' value='"+target.data('uuid')+"'>";
+
+          });
+
+          //태그들이 추가된 것을 확인한 후에 comment를 제거
+          $(".box").html(str);
+
+          $("form").submit();
+
+        });
+
+      });
+    </script>
+
+
+  </th:block>
+
+</th:block>
