@@ -19,6 +19,8 @@
             <div class="input-group">
                 <input type="hidden" name="page" value = "1"> <!-- 페이지 번호 숨은 입력 필드 -->
                 <div class="input-group-prepend">
+
+                    <!-- 검색 선택 박스 -->
                     <select class="custom-select" name="type">
                         <option th:selected="${pageRequestDTO.type == null}">-------</option>
                         <option value="t" th:selected="${pageRequestDTO.type =='t'}" >제목</option>
@@ -28,8 +30,12 @@
                         <option value="tcw"  th:selected="${pageRequestDTO.type =='tcw'}" >제목 + 내용 + 작성자</option>
                     </select>
                 </div>
+
+                <!-- 검색 입력 필드 -->
                 <input class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
                 <div class="input-group-append" id="button-addon4">
+
+                    <!-- 검색 버튼, 초기화 버튼 -->
                     <button class="btn btn-outline-secondary btn-search" type="button">Search</button>
                     <button class="btn btn-outline-secondary btn-clear" type="button">Clear</button>
                 </div>
@@ -52,6 +58,8 @@
             <!-- 게시글 목록 -->
             <tr th:each="dto : ${result.dtoList}" >
                 <th scope="row">
+
+                    <!-- 각 게시글 번호와 게시글 읽기 페이지로 이동 -->
                     <a th:href="@{/board/read(bno = ${dto.bno},
                     page= ${result.page},
                     type=${pageRequestDTO.type} ,
@@ -59,6 +67,8 @@
                         [[${dto.bno}]]
                     </a>
                 </th>
+
+                <!-- 게시글 제목, 댓글 수, 작성자 이름, 이메일, 작성일 -->
                 <td>[[${dto.title}]] --------- [<b th:text="${dto.replyCount}"></b>]</td>
                 <td>[[${dto.writerName}]] <small>[[${dto.writerEmail}]]</small></td>
                 <td>[[${#temporals.format(dto.regDate, 'yyyy/MM/dd')}]]</td>

@@ -81,13 +81,13 @@ public class UploadController {
         return new ResponseEntity<>(resultDTOList, HttpStatus.OK);
     }
 
-    private String makeFolder() {
+    private String makeFolder() { // 날짜별 폴더 생성
 
         String str = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
         String folderPath = str.replace("/", File.separator);
 
-        // make Folder
+        // 폴더 만들기
         File uploadPathFolder = new File(uploadPath, folderPath);
 
         if (uploadPathFolder.exists() == false) {
@@ -96,7 +96,7 @@ public class UploadController {
         return folderPath;
     }
 
-
+    // 이미지 파일 조회 및 다운로드
     @GetMapping("/display")
     public ResponseEntity<byte[]> getFile(String fileName, String size){
 
@@ -127,6 +127,7 @@ public class UploadController {
         return result;
     }
 
+    // 파일 삭제
     @PostMapping("/removeFile")
     public ResponseEntity<Boolean> removeFile(String fileName){
 
@@ -136,6 +137,8 @@ public class UploadController {
             File file = new File(uploadPath +File.separator+ srcFileName);
             boolean result = file.delete();
 
+
+            // 섬네일 파일 삭제
             File thumbnail = new File(file.getParent(), "s_" + file.getName());
 
             result = thumbnail.delete();

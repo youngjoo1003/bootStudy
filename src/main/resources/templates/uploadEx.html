@@ -19,7 +19,7 @@
 <script>
     $('.uploadBtn').click(function( ) {
 
-        var formData = new FormData();
+        var formData = new FormData(); // formData 생성
 
         var inputFile = $("input[type='file']");
 
@@ -54,8 +54,10 @@
 
         console.log(arr);
 
+        // 업로드 결과 표시 영역
         var divArea = $(".uploadResult");
 
+        // 업로드된 이미지 화면 추가
         var str = "";
 
         for(var i = 0; i < arr.length; i++){
@@ -65,8 +67,9 @@
             str += "</div>";
         }
         divArea.append(str);
-
     }
+
+    // 이미지 삭제 버튼
     $(".uploadResult").on("click", ".removeBtn", function(e){
 
         var target = $(this);
@@ -77,6 +80,8 @@
 
         $.post('/removeFile', {fileName: fileName}, function(result){
             console.log(result);
+
+            // 삭제되면 이미지 제거
             if(result === true){
                 targetDiv.remove();
             }

@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository repository; // BoardRepository 주입
-    private final ReplyRepository replyRepository;
+    private final ReplyRepository replyRepository; // ReplyRepository 주입
 
     @Override
     public Long register(BoardDTO dto){ // 게시글 등록 메서드
@@ -72,6 +72,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void removeWithReplies(Long bno) {
 
+        // 댓글 부터 삭제
         replyRepository.deleteByBno(bno);
 
         repository.deleteById(bno);

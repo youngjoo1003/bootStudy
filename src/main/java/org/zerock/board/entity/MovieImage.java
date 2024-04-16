@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@ToString(exclude = "movie")
+@ToString(exclude = "movie") // 연관 관계 주의
 public class MovieImage {
 
     @Id
